@@ -175,9 +175,10 @@ function PullOver(props: { deadline: number; disabled: boolean; onStop: () => vo
     return () => clearInterval(id)
   }, [props.deadline])
   return (
-    <button class="exit" disabled={props.disabled} onClick={props.onStop}>
+    <button class="exit" disabled={props.disabled} onClick={props.onStop} aria-keyshortcuts="Escape">
       <span class="exit-tab">P</span>
       Pull over ∙ +{fuelBonus(ms)} mi
+      <kbd class="key" aria-hidden="true">Esc</kbd>
     </button>
   )
 }
@@ -233,6 +234,18 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
       setBusy(false)
     }
   }
+
+  // Esc pulls over, unless a sheet (rules, settings) is open: there Esc only closes the sheet.
+  useEffect(() => {
+    if (!playing) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('dialog[open]')) return
+      e.preventDefault() // also stops the search field clearing itself
+      void send({ type: 'stop' })
+    }
+    addEventListener('keydown', onKey)
+    return () => removeEventListener('keydown', onKey)
+  }, [playing, send])
 
   const submit = (e: Event) => {
     e.preventDefault()
