@@ -9,7 +9,8 @@ export interface ModeMeta {
 
 export interface RoundSummary {
   score: number
-  outcome: 'banked' | 'crashed'
+  /** How the round ended, in the mode's own words (stored as the run's status). */
+  outcome: string
   /** Spoiler-free glyph line for share text. */
   glyph: string
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { RoundSummary } from '../../../shared/mode.ts'
-import { config, meta, tierIndex, tiers, type BackroadsEvent, type BackroadsView } from '../../../shared/modes/backroads.ts'
+import { config, fuelBonus, meta, tierIndex, tiers, type BackroadsEvent, type BackroadsView } from '../../../shared/modes/backroads.ts'
 import { get, post } from '../../core/api.ts'
 import { Share as ShareIcon } from '../../core/icons.tsx'
 import { setScene } from '../../core/scene.tsx'
@@ -19,6 +19,7 @@ interface Day { day: string; number: number; rounds: Round[] }
 
 const SEEN_RULES = `blinker:seen-rules:${meta.id}`
 const tierOf = (obscurity: number) => tiers[tierIndex(obscurity)]
+const END_LABEL: Record<string, string> = { 'pulled-over': 'pulled over', 'out-of-gas': 'out of gas' }
 
 export function Play({ day }: { day: string }) {
   const [data, setData] = useState<Day | null>(null)
@@ -90,8 +91,8 @@ function Progress({ rounds, current }: { rounds: Round[]; current?: number }) {
   return (
     <ol class="progress" aria-label="Today’s rounds">
       {rounds.map((r) => {
-        const state = r.summary?.outcome ?? (r.slot === current ? 'current' : 'todo')
-        const label = r.summary ? `${r.summary.outcome}, ${r.summary.score} mi` : state === 'current' ? 'up next' : 'not started'
+        const state = r.summary ? 'done' : r.slot === current ? 'current' : 'todo'
+        const label = r.summary ? `${END_LABEL[r.summary.outcome] ?? 'done'}, ${r.summary.score} mi` : state === 'current' ? 'up next' : 'not started'
         return <li key={r.slot} class={`step ${state}`} aria-label={`Round ${r.slot + 1}: ${label}`} />
       })}
     </ol>
@@ -105,11 +106,11 @@ function RoundRow({ round }: { round: Round }) {
   return (
     <li class="round-row">
       <span class="round-label">Round {round.slot + 1}</span>
-      <span class="chips" role="img" aria-label={`${v.picks.length} answers, ${s.outcome}`}>
+      <span class="chips" role="img" aria-label={`${v.picks.length} answers, ${END_LABEL[s.outcome] ?? s.outcome}`}>
         {v.picks.map((p) => (
-          <span key={p.name} class={`chip tier-bg-${tierIndex(p.obscurity)}`} />
+          <span key={p.name} class={p.miles ? `chip tier-bg-${tierIndex(p.obscurity)}` : 'chip chip-zero'} />
         ))}
-        <span class={`chip-end ${s.outcome}`} aria-hidden="true">{s.outcome === 'banked' ? '↗' : '✕'}</span>
+        <span class={`chip-end ${s.outcome}`} aria-hidden="true">{s.outcome === 'pulled-over' ? 'P' : 'E'}</span>
       </span>
       <span class="round-score">{s.score}<small>mi</small></span>
     </li>
@@ -134,7 +135,7 @@ function Intro(props: { day: Day; round: Round; onStart: () => Promise<void>; on
           <p class="round-num">
             Round {round.slot + 1} <small>of {day.rounds.length}</small>
           </p>
-          <p>The category appears when you start. You have {config.answerMs / 1000} seconds per answer.</p>
+          <p>The category appears when you start. You get a {config.tankMs / 1000}-second tank; rare answers refuel it.</p>
         </div>
         {done.length > 0 && (
           <ol class="round-rows" aria-label="Finished rounds">
@@ -155,17 +156,30 @@ function Intro(props: { day: Day; round: Round; onStart: () => Promise<void>; on
 
 function lastLine(v: BackroadsView): string | null {
   const l = v.last
-  if (v.status === 'crashed')
-    return v.crash === 'timeout'
-      ? 'The signal ran out.'
-      : `${l!.pick!.name} is a ${tierOf(l!.pick!.obscurity).name} answer. You needed ${tiers[v.need].name} or rarer.`
   if (!l) return null
   if (l.result === 'not-found') return `“${l.input}” isn’t on the map.`
   if (l.result === 'repeat') return `You already drove ${l.pick!.name}.`
   const t = tierOf(l.pick!.obscurity)
   // Always show what a corrected or aliased answer counted as.
   const as = l.input.toLowerCase() === l.pick!.name.toLowerCase() ? '' : `“${l.input}” → `
-  return `${as}${l.pick!.name} ∙ ${t.name} ∙ +${config.miles(l.pick!.obscurity)} mi`
+  if (l.result === 'below-sign') return `${as}${l.pick!.name} is ${t.name}: below the sign, 0 mi.`
+  return `${as}${l.pick!.name} ∙ ${t.name} ∙ +${l.pick!.miles} mi ∙ +${l.refuelMs! / 1000}s fuel`
+}
+
+/** Ends the round early; shows what the fuel left is worth right now. */
+function PullOver(props: { deadline: number; disabled: boolean; onStop: () => void }) {
+  const [ms, setMs] = useState(() => props.deadline - performance.now())
+  useEffect(() => {
+    setMs(props.deadline - performance.now())
+    const id = setInterval(() => setMs(props.deadline - performance.now()), 250)
+    return () => clearInterval(id)
+  }, [props.deadline])
+  return (
+    <button class="exit" disabled={props.disabled} onClick={props.onStop}>
+      <span class="exit-tab">P</span>
+      Pull over ∙ +{fuelBonus(ms)} mi
+    </button>
+  )
 }
 
 function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => void; onNext: () => void }) {
@@ -182,8 +196,13 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
 
   useEffect(() => (playing ? input : nextBtn).current?.focus(), [playing])
   useEffect(
-    () => setScene(v.status === 'crashed' ? 'crash' : v.status === 'banked' ? 'exit' : 'drive', 0.2 + v.picks.length / 8),
-    [v.status, v.picks.length],
+    () =>
+      v.end === 'pulled-over'
+        ? setScene('exit', 0.1)
+        : v.end === 'out-of-gas'
+          ? setScene('idle', 0)
+          : setScene('drive', 0.2 + v.picks.filter((x) => x.miles).length / 8),
+    [v.end, v.picks.length],
   )
 
   const shake = () => {
@@ -203,9 +222,9 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
       onUpdate(r)
       setDeadline(performance.now() + r.view!.msLeft)
       const nv = r.view!
-      if (nv.status === 'crashed') sound.crash()
-      else if (nv.status === 'banked') sound.exit()
-      else if (e.type === 'answer' && nv.last?.result === 'accepted') sound.accept()
+      if (nv.end === 'pulled-over') sound.exit()
+      else if (nv.end === 'out-of-gas') sound.stall()
+      else if (e.type === 'answer' && nv.last?.result === 'scored') sound.accept()
       else if (e.type === 'answer') (sound.miss(), shake())
     } catch (err) {
       setError((err as Error).message)
@@ -224,6 +243,7 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
   }
 
   const line = lastLine(v)
+  const total = v.miles + v.bonus
   const isLast = day.rounds.every((r) => r.slot === round.slot || r.summary)
 
   return (
@@ -234,12 +254,18 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
         </p>
         <h1 class="prompt led-board">{round.prompt}</h1>
         <div class="dash">
-          <div class="odometer" aria-label={`${v.pot} miles ${playing ? 'in the pot' : v.status === 'banked' ? 'banked' : 'lost'}`}>
-            <span class="odo-digits">{String(v.pot).padStart(4, '0')}</span>
-            <span class="odo-unit">{playing ? 'mi at stake' : v.status === 'banked' ? 'mi banked' : 'mi lost'}</span>
+          <div class="odometer" aria-label={`${total} miles ${playing ? 'so far' : 'this round'}`}>
+            <span class="odo-digits">{String(total).padStart(4, '0')}</span>
+            <span class="odo-unit">{playing ? 'mi so far' : 'mi this round'}</span>
           </div>
+          {v.bonus > 0 && (
+            <div class="odometer" aria-label={`including ${v.bonus} miles for fuel left`}>
+              <span class="odo-digits">+{v.bonus}</span>
+              <span class="odo-unit">mi fuel bonus</span>
+            </div>
+          )}
           {playing && (
-            <div class={`sign tier-need-${v.need}`} aria-label={`Next answer: ${tiers[v.need].name} or rarer`}>
+            <div class={`sign tier-need-${v.need}`} aria-label={`Next answer scores if it is ${tiers[v.need].name} or rarer`}>
               <span class="sign-label">NEXT</span>
               <span class="sign-text">
                 {tiers[v.need].name}
@@ -250,18 +276,16 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
         </div>
         <p class={`last ${v.last?.result ?? ''} ${v.status}`} aria-live="polite">{line}</p>
         {error && <p class="note" role="alert">{error}</p>}
-        {!playing && (
-          <p class={`result-head ${v.status}`}>{v.status === 'banked' ? 'Took the exit' : 'Crashed'}</p>
-        )}
+        {!playing && <p class={`result-head ${v.end}`}>{v.end === 'pulled-over' ? 'Pulled over' : 'Out of gas'}</p>}
         <ol class="picks" aria-label="Your answers">
           {v.picks.map((p, i) => {
             const ti = tierIndex(p.obscurity)
             return (
-              <li key={p.name} class={`tier-${ti}`}>
+              <li key={p.name} class={p.miles ? `tier-${ti}` : 'zero'}>
                 <span class="mm">{i + 1}</span>
                 <span class="name">{p.name}</span>
                 <span class="tier">{tiers[ti].name}</span>
-                <span class="mi">+{config.miles(p.obscurity)}</span>
+                <span class="mi">{p.miles ? `+${p.miles}` : '0'}</span>
               </li>
             )
           })}
@@ -287,10 +311,7 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
               />
               <button class="button primary" type="submit" disabled={!text.trim()}>Go</button>
             </form>
-            <button class="exit" disabled={busy} onClick={() => void send({ type: 'bank' })}>
-              <span class="exit-tab">EXIT</span>
-              Take the exit ∙ bank {v.pot} mi
-            </button>
+            <PullOver deadline={deadline} disabled={busy} onStop={() => void send({ type: 'stop' })} />
           </>
         ) : (
           <button ref={nextBtn} class="button primary big" onClick={onNext}>

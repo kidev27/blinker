@@ -1,9 +1,10 @@
 # Blinker
 
-A daily browser game. The first mode, **Backroads**, is a push-your-luck naming game: you get a
-category, name things in it one at a time, and rarer answers take you farther. The road sign
-says how rare the next answer must be, and it gets stricter as you go. Take the exit to bank your
-miles; name something too common or let the turn signal run out and you crash, losing the round.
+A daily browser game. The first mode, **Backroads**, is a naming game against a fuel tank: you
+get a category and a 30-second tank, and name things in it one at a time. Answers that clear the
+road sign score miles and refuel the tank, and rarer answers earn more of both. The sign gets
+stricter as you go; answers below it are accepted but score nothing. The round ends when the tank
+runs dry, or when you pull over and turn the fuel left into bonus miles. You never lose miles.
 Three rounds a day, same for everyone, with a spoiler-free share card and a streak.
 
 Works in mobile browsers (primary) and desktop browsers.

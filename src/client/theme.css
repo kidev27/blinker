@@ -125,7 +125,6 @@
 }
 
 /* Scene moods, set by setScene(). */
-:root[data-mood='crash'] { --glow: rgba(255, 50, 50, 0.55); }
 :root[data-mood='exit'] { --glow: rgba(61, 220, 132, 0.5); }
 
 /* ---------- Base ---------- */
@@ -301,7 +300,6 @@ button:disabled { opacity: 0.55; cursor: default; }
 }
 @keyframes dashes { to { background-position: 0 220px; } }
 .flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
-:root[data-mood='crash'] .flash { background: rgba(255, 40, 40, 0.35); animation: flash 0.7s ease-out; }
 :root[data-mood='exit'] .flash { background: rgba(61, 220, 132, 0.22); animation: flash 0.9s ease-out; }
 @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
 
@@ -354,8 +352,7 @@ button:disabled { opacity: 0.55; cursor: default; }
 /* Unplayed rounds are outlines in --muted so they stay visible on the sky (3:1 for UI marks). */
 .step { width: 22px; height: 8px; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--muted); }
 .step.current { box-shadow: inset 0 0 0 2px var(--accent), 0 0 8px var(--accent); }
-.step.banked { background: var(--accent); box-shadow: none; }
-.step.crashed { background: var(--crash); box-shadow: none; }
+.step.done { background: var(--accent); box-shadow: none; }
 
 .scroll { flex: 1; overflow-y: auto; padding: 20px 16px; }
 .center { display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; }
@@ -562,9 +559,20 @@ button:disabled { opacity: 0.55; cursor: default; }
 .round-score small, .stats dd small { margin-left: 3px; font: 700 12px var(--font); color: var(--muted); }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .chip { width: 18px; height: 18px; border-radius: 4px; display: inline-block; }
-.chip-end { margin-left: 4px; font-weight: 800; }
-.chip-end.banked { color: var(--exit); }
-.chip-end.crashed { color: var(--crash); }
+.chip-zero { box-shadow: inset 0 0 0 2px var(--muted); }
+/* End badge: P on a guide-sign green for pulled over, E like an empty fuel gauge for out of gas. */
+.chip-end {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  border-radius: 4px;
+  font: 900 12px var(--led);
+  color: #fff;
+  background: var(--sign);
+}
+.chip-end.out-of-gas { color: var(--panel); background: var(--muted); }
 .tier-bg-0 { background: var(--tier-0); }
 .tier-bg-1 { background: var(--tier-1); }
 .tier-bg-2 { background: var(--tier-2); }
@@ -599,12 +607,10 @@ button:disabled { opacity: 0.55; cursor: default; }
 .sign-label { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; opacity: 0.9; }
 .sign-text { font-size: 19px; font-weight: 800; line-height: 1.15; }
 .last { min-height: 1.45em; margin: 0 0 10px; color: var(--muted); font-weight: 700; }
-.last.accepted { color: var(--text); }
-.last.crashed { color: var(--crash); }
+.last.scored { color: var(--text); }
 .result-head { margin: 0 0 12px; font-size: 30px; font-weight: 800; }
-.result-head.crashed { color: var(--crash); animation: jolt 0.45s; }
-.result-head.banked { color: var(--exit); animation: glow-in 0.8s; }
-@keyframes jolt { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.result-head.pulled-over { color: var(--exit); animation: glow-in 0.8s; }
+.result-head.out-of-gas { color: var(--accent-text); animation: glow-in 0.8s; }
 @keyframes glow-in { from { text-shadow: 0 0 24px var(--exit); transform: scale(1.06); } }
 
 .picks { list-style: none; padding: 0; margin: 0; background: var(--panel); border-radius: 12px; overflow: hidden; }
@@ -620,6 +626,8 @@ button:disabled { opacity: 0.55; cursor: default; }
 }
 .picks li + li { border-top: var(--bw) solid var(--line); }
 @keyframes pop { from { transform: scale(0.92); opacity: 0; } 60% { transform: scale(1.02); } }
+.picks li.zero { color: var(--muted); }
+.picks li.zero .name, .picks li.zero .mi { color: var(--muted); font-weight: 400; }
 .picks .mm { font: 700 12px var(--mono); color: var(--muted); }
 .picks .name { color: var(--text); font-weight: 700; }
 .picks .tier { font-size: 13px; font-weight: 700; }

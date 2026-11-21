@@ -3,7 +3,7 @@ import { buildApp } from '../server/app.ts'
 import { openDb, userVersion, type Db } from '../server/db.ts'
 import type { ServerMode } from '../server/mode.ts'
 import { backroads } from '../server/modes/backroads.ts'
-import { config } from '../src/shared/modes/backroads.ts'
+import { config, fuelBonus } from '../src/shared/modes/backroads.ts'
 import { testRound } from './helpers.ts'
 
 // A second mode that core code knows nothing about: proves modes plug in without core changes.
@@ -15,7 +15,7 @@ const coin: ServerMode<{ q: string }, { flips: number }, { type: 'flip' }, { fli
   start: () => ({ flips: 0 }),
   apply: (s) => ({ flips: s.flips + 1 }),
   view: (s) => s,
-  summary: (s) => (s.flips ? { score: 7, outcome: 'banked', glyph: '🪙' } : null),
+  summary: (s) => (s.flips ? { score: 7, outcome: 'flipped', glyph: '🪙' } : null),
 }
 
 const DAY = '2026-11-21'
@@ -93,13 +93,14 @@ describe('backroads API', () => {
     const { req } = await client()
     await req('POST', `/api/backroads/${DAY}/0/start`)
     const res = await req('POST', `/api/backroads/${DAY}/0/event`, { type: 'answer', text: 'answer 39' })
-    expect(res.json().view).toMatchObject({ pot: config.miles(98), last: { result: 'accepted' } })
+    expect(res.json().view).toMatchObject({ miles: config.miles(98), last: { result: 'scored' } })
     expect(res.body).not.toContain('Answer 38')
     expect(res.body).not.toContain('Topaz')
-    const bank = await req('POST', `/api/backroads/${DAY}/0/event`, { type: 'bank' })
-    expect(bank.json().summary).toMatchObject({ outcome: 'banked', score: config.miles(98) })
+    const stop = await req('POST', `/api/backroads/${DAY}/0/event`, { type: 'stop' })
+    const score = config.miles(98) + fuelBonus(config.tankMs) // a Dirt Track answer keeps the tank full
+    expect(stop.json().summary).toMatchObject({ outcome: 'pulled-over', score })
     const row = db.prepare('SELECT status, score FROM runs').get()
-    expect(row).toEqual({ status: 'banked', score: config.miles(98) })
+    expect(row).toEqual({ status: 'pulled-over', score })
   })
 
   it('restarting a started round returns the same run', async () => {
@@ -107,15 +108,15 @@ describe('backroads API', () => {
     await req('POST', `/api/backroads/${DAY}/0/start`)
     await req('POST', `/api/backroads/${DAY}/0/event`, { type: 'answer', text: 'answer 39' })
     const again = await req('POST', `/api/backroads/${DAY}/0/start`)
-    expect(again.json().view.pot).toBe(config.miles(98))
+    expect(again.json().view.miles).toBe(config.miles(98))
   })
 
   it('rejects late answers after the deadline plus grace', async () => {
     const { req } = await client()
     await req('POST', `/api/backroads/${DAY}/1/start`)
-    t += config.answerMs + config.graceMs + 1
+    t += config.tankMs + config.graceMs + 1
     const res = await req('POST', `/api/backroads/${DAY}/1/event`, { type: 'answer', text: 'answer 39' })
-    expect(res.json()).toMatchObject({ view: { status: 'crashed', crash: 'timeout' }, summary: { score: 0 } })
+    expect(res.json()).toMatchObject({ view: { status: 'finished', end: 'out-of-gas' }, summary: { score: 0 } })
   })
 
   it('validates input', async () => {
@@ -125,7 +126,8 @@ describe('backroads API', () => {
     expect((await req('POST', url, { type: 'answer' })).statusCode).toBe(400)
     expect((await req('POST', url, { type: 'answer', text: 'x'.repeat(81) })).statusCode).toBe(400)
     expect((await req('POST', url, { type: 'cheat' })).statusCode).toBe(400)
-    expect((await req('POST', `/api/backroads/${DAY}/1/event`, { type: 'bank' })).statusCode).toBe(409)
+    expect((await req('POST', `/api/backroads/${DAY}/1/event`, { type: 'stop' })).statusCode).toBe(409)
+    expect((await req('POST', `/api/backroads/${DAY}/0/event`, { type: 'bank' })).statusCode).toBe(400)
     expect((await req('POST', `/api/backroads/${DAY}/9/start`)).statusCode).toBe(404)
     expect((await req('POST', `/api/backroads/${DAY}/-1/start`)).statusCode).toBe(400)
     expect((await req('GET', '/api/backroads/2026-11-30')).statusCode).toBe(400)
@@ -153,7 +155,7 @@ describe('extensibility', () => {
     const { req } = await client()
     expect((await req('POST', `/api/coin/${DAY}/0/start`)).json()).toMatchObject({ prompt: 'Heads?' })
     const res = await req('POST', `/api/coin/${DAY}/0/event`, { type: 'flip' })
-    expect(res.json().summary).toEqual({ score: 7, outcome: 'banked', glyph: '🪙' })
+    expect(res.json().summary).toEqual({ score: 7, outcome: 'flipped', glyph: '🪙' })
     expect((await req('POST', `/api/coin/${DAY}/0/event`, { type: 'answer', text: 'x' })).statusCode).toBe(400)
   })
 })

@@ -31,8 +31,5 @@ export const tick = (on: boolean) => tone(on ? 1900 : 1300, 25, 0.06)
 export const accept = () => tone(660, 90, 0.05, 'triangle')
 export const miss = () => tone(180, 120, 0.05, 'sawtooth')
 export const exit = () => (tone(523, 140, 0.07, 'triangle'), tone(784, 220, 0.07, 'triangle', 120))
-export function crash() {
-  tone(90, 500, 0.12, 'sawtooth')
-  tone(60, 700, 0.1, 'square', 40)
-  navigator.vibrate?.(200)
-}
+/** Engine winding down when the tank runs dry. */
+export const stall = () => (tone(330, 160, 0.06, 'triangle'), tone(220, 320, 0.06, 'triangle', 150))
