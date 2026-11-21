@@ -1,5 +1,5 @@
 import {
-  barAt, config, meta, tierIndex, tiers,
+  barAt, config, fuelBonus, meta, tierIndex, tiers,
   type BackroadsEvent, type BackroadsView, type LastAnswer, type Pick,
 } from '../../src/shared/modes/backroads.ts'
 import { buildIndex, match, type AnswerIndex } from '../match.ts'
@@ -10,10 +10,12 @@ interface Puzzle { prompt: string; index: AnswerIndex<Answer> }
 
 interface State {
   status: BackroadsView['status']
-  crash?: BackroadsView['crash']
+  end?: BackroadsView['end']
+  /** When the tank runs dry (server clock). */
   deadline: number
   picks: Pick[]
-  pot: number
+  miles: number
+  bonus: number
   last?: LastAnswer
 }
 
@@ -44,29 +46,42 @@ function parse(raw: unknown): Puzzle {
   }
 }
 
-const crash = (s: State, why: State['crash'], last = s.last): State => ({ ...s, status: 'crashed', crash: why, last })
+const finish = (s: State, end: State['end'], bonus = 0): State => ({ ...s, status: 'finished', end, bonus })
 
 function apply(s: State, e: BackroadsEvent, p: Puzzle, now: number): State {
   if (s.status !== 'playing') return s
-  if (now > s.deadline + config.graceMs) return crash(s, 'timeout')
-  if (e.type === 'timeout') return now >= s.deadline ? crash(s, 'timeout') : s
-  if (e.type === 'bank') return { ...s, status: 'banked', last: undefined }
+  if (now > s.deadline + config.graceMs) return finish(s, 'out-of-gas')
+  if (e.type === 'timeout') return now >= s.deadline ? finish(s, 'out-of-gas') : s
+  if (e.type === 'stop') return finish(s, 'pulled-over', fuelBonus(s.deadline - now))
 
   const input = e.text.trim()
   const i = match(p.index, input)
   if (i === null) return { ...s, last: { input, result: 'not-found' } }
   const { name, obscurity } = p.index.answers[i]
-  const pick = { name, obscurity }
-  if (s.picks.some((x) => x.name === name)) return { ...s, last: { input, result: 'repeat', pick } }
-  if (tierIndex(obscurity) < barAt(s.picks.length)) return crash(s, 'too-obvious', { input, result: 'too-obvious', pick })
+  if (s.picks.some((x) => x.name === name)) {
+    const pick = s.picks.find((x) => x.name === name)
+    return { ...s, last: { input, result: 'repeat', pick } }
+  }
+  const tier = tierIndex(obscurity)
+  const scored = s.picks.filter((x) => x.miles > 0).length
+  // Below the sign: accepted and used up, but no miles and no fuel. The round goes on.
+  if (tier < barAt(scored)) {
+    const pick = { name, obscurity, miles: 0 }
+    return { ...s, picks: [...s.picks, pick], last: { input, result: 'below-sign', pick } }
+  }
+  const pick = { name, obscurity, miles: config.miles(obscurity) }
+  const refuelMs = config.refuelMs[tier]
+  const fuel = Math.min(config.tankMs, s.deadline - now + refuelMs)
   return {
     ...s,
     picks: [...s.picks, pick],
-    pot: s.pot + config.miles(obscurity),
-    deadline: now + config.answerMs,
-    last: { input, result: 'accepted', pick },
+    miles: s.miles + pick.miles,
+    deadline: now + Math.max(0, fuel),
+    last: { input, result: 'scored', pick, refuelMs },
   }
 }
+
+const END_GLYPH = { 'pulled-over': '🅿️', 'out-of-gas': '⛽' }
 
 export const backroads: ServerMode<Puzzle, State, BackroadsEvent, BackroadsView> = {
   meta,
@@ -77,7 +92,7 @@ export const backroads: ServerMode<Puzzle, State, BackroadsEvent, BackroadsView>
     required: ['type'],
     additionalProperties: false,
     properties: {
-      type: { enum: ['answer', 'bank', 'timeout'] },
+      type: { enum: ['answer', 'stop', 'timeout'] },
       text: { type: 'string', minLength: 1, maxLength: 80 },
     },
     if: { properties: { type: { const: 'answer' } } },
@@ -85,23 +100,24 @@ export const backroads: ServerMode<Puzzle, State, BackroadsEvent, BackroadsView>
   },
   parse,
   prompt: (p) => p.prompt,
-  start: (_p, now) => ({ status: 'playing', deadline: now + config.answerMs, picks: [], pot: 0 }),
+  start: (_p, now) => ({ status: 'playing', deadline: now + config.tankMs, picks: [], miles: 0, bonus: 0 }),
   apply,
   view: (s, now) => ({
     status: s.status,
-    crash: s.crash,
+    end: s.end,
     msLeft: s.status === 'playing' ? Math.max(0, s.deadline - now) : 0,
     picks: s.picks,
-    pot: s.pot,
-    need: barAt(s.picks.length),
+    miles: s.miles,
+    bonus: s.bonus,
+    need: barAt(s.picks.filter((x) => x.miles > 0).length),
     last: s.last,
   }),
   summary: (s) =>
-    s.status === 'playing'
+    s.status === 'playing' || !s.end
       ? null
       : {
-          score: s.status === 'banked' ? s.pot : 0,
-          outcome: s.status,
-          glyph: s.picks.map((x) => tiers[tierIndex(x.obscurity)].glyph).join('') + (s.status === 'banked' ? '↗' : '💥'),
+          score: s.miles + s.bonus,
+          outcome: s.end,
+          glyph: s.picks.map((x) => (x.miles ? tiers[tierIndex(x.obscurity)].glyph : '⬛')).join('') + END_GLYPH[s.end],
         },
 }

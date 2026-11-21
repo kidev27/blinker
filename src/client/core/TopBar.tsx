@@ -59,7 +59,7 @@ function SettingsForm() {
       <label class="switch">
         <span>
           <strong>Sound</strong>
-          <small>Turn-signal ticks and crash and exit sounds.</small>
+          <small>Turn-signal ticks and round sounds.</small>
         </span>
         <input type="checkbox" role="switch" checked={!s.muted} onChange={() => updateSettings({ muted: !s.muted })} />
       </label>

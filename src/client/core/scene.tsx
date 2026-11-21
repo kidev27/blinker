@@ -1,7 +1,7 @@
 import { Roadside } from './roadside.tsx'
 
 // The night road behind every screen. Modes steer it through setScene(); CSS does the rest.
-export type Mood = 'idle' | 'drive' | 'crash' | 'exit'
+export type Mood = 'idle' | 'drive' | 'exit'
 
 /** speed: 0 (parked) to 1 (flat out). */
 export function setScene(mood: Mood, speed = 0) {

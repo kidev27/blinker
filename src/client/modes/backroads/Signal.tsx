@@ -37,11 +37,11 @@ export function Signal({ deadline, onExpire }: { deadline: number; onExpire: () 
   return (
     <div class={`signal ${left < HYPER_FROM ? 'hurry' : ''}`}>
       <Arrow class={`signal-arrow ${on ? 'on' : ''}`} />
-      <span class="secs" role="timer" aria-label={`${secs} seconds left`}>
+      <span class="secs" role="timer" aria-label={`${secs} seconds of fuel left`}>
         {String(secs).padStart(2, '0')}
       </span>
       <div class="fuel" aria-hidden="true">
-        <div style={{ width: `${(left / config.answerMs) * 100}%` }} />
+        <div style={{ width: `${(left / config.tankMs) * 100}%` }} />
       </div>
     </div>
   )
