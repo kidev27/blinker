@@ -1,0 +1,65 @@
+{
+  "rounds": [
+    {
+      "prompt": "Name the capital of a US state or territory",
+      "answers": {
+        "Boston": 8, "Austin": 10, "Atlanta": 10, "Denver": 12, "Phoenix": 14, "Sacramento": 16, "Honolulu": 18,
+        "Nashville": 18, "Salt Lake City": 20, "Albany": 22, "Oklahoma City": 22, "Indianapolis": 24,
+        "Columbus": 26, "Tallahassee": 26, "Springfield": 28, "Richmond": 30, "Juneau": 30, "Raleigh": 34, "Baton Rouge": 34,
+        "Saint Paul|St Paul|St. Paul": 34, "Providence": 36, "Santa Fe": 36, "Little Rock": 36, "Des Moines": 40,
+        "Madison": 40, "Jackson": 46, "Annapolis": 48, "Hartford": 48,
+        "Lansing": 50, "Olympia": 50, "Lincoln": 50, "Montgomery": 50, "Charleston": 50, "Columbia": 52, "Boise": 52,
+        "Cheyenne": 52, "Harrisburg": 54, "Topeka": 54, "Trenton": 56, "Carson City": 56, "San Juan": 58, "Dover": 60,
+        "Bismarck": 60, "Frankfort": 62, "Helena": 64, "Augusta": 66, "Salem": 66, "Concord": 66, "Jefferson City": 70,
+        "Montpelier": 74,
+        "Pierre": 78, "Pago Pago": 86, "Charlotte Amalie": 88,
+        "Saipan|Capitol Hill": 92, "Hagåtña|Hagatna|Agana": 94
+      }
+    },
+    {
+      "prompt": "Name a bone in the human body",
+      "answers": {
+        "Skull|Cranium": 4, "Femur|Thigh bone": 5, "Rib|Ribs": 6, "Tibia|Shinbone|Shin bone": 12, "Clavicle|Collarbone": 12,
+        "Pelvis|Hip bone": 14, "Humerus|Funny bone": 14, "Patella|Kneecap": 14, "Mandible|Jaw|Jawbone": 16,
+        "Vertebra|Vertebrae": 18, "Sternum|Breastbone": 20, "Fibula": 20, "Scapula|Shoulder blade": 20, "Radius": 22,
+        "Ulna": 22,
+        "Coccyx|Tailbone": 28, "Phalanges|Phalanx": 30, "Metacarpal|Metacarpals": 36, "Metatarsal|Metatarsals": 36,
+        "Sacrum": 40, "Maxilla": 40, "Carpal|Carpals": 44, "Stapes|Stirrup": 44, "Calcaneus|Heel bone": 44,
+        "Tarsal|Tarsals": 46, "Zygomatic bone|Zygomatic|Cheekbone": 46, "Malleus|Hammer": 48,
+        "Incus|Anvil": 50, "Talus|Ankle bone": 50, "Frontal bone|Frontal": 50, "Ilium": 52, "Nasal bone|Nasal": 52,
+        "Hyoid": 54, "Occipital bone|Occipital": 54, "Parietal bone|Parietal": 54, "Pubis": 56, "Temporal bone|Temporal": 56,
+        "Ischium": 58, "Atlas": 58, "Axis": 62, "Scaphoid": 64, "Sphenoid": 66, "Cuboid": 66, "Ethmoid": 68, "Navicular": 68,
+        "Lunate": 70, "Sesamoid": 70, "Manubrium": 70, "Pisiform": 72, "Trapezium": 72, "Capitate": 72, "Xiphoid process|Xiphoid": 72,
+        "Hamate": 74, "Trapezoid": 74, "Vomer": 74, "Lacrimal bone|Lacrimal": 74,
+        "Triquetrum": 76, "Palatine bone|Palatine": 76, "Cuneiform|Medial cuneiform": 80,
+        "Inferior nasal concha|Nasal concha|Turbinate": 84,
+        "Fabella": 92, "Wormian bone|Sutural bone": 92, "Os trigonum": 94, "Os peroneum": 96, "Os acromiale": 96
+      }
+    },
+    {
+      "prompt": "Name a sport",
+      "answers": {
+        "Soccer|Football|Association football": 2, "Basketball": 3, "Tennis": 5, "Baseball": 6,
+        "American football|Gridiron": 8, "Golf": 10, "Ice hockey|Hockey": 10, "Volleyball": 12, "Swimming": 14, "Boxing": 14,
+        "Cricket": 16, "Rugby": 18, "Skiing": 18, "Badminton": 20, "Table tennis|Ping pong": 20,
+        "Athletics|Track and field|Track|Running": 22, "Cycling": 22, "Wrestling": 24,
+        "Bowling": 26, "Gymnastics": 26, "Surfing": 28, "Skateboarding": 28, "Snowboarding": 28, "Lacrosse": 30,
+        "Mixed martial arts|MMA": 30, "Pickleball": 30, "Softball": 32, "Archery": 34, "Darts": 34, "Figure skating": 34,
+        "Fencing": 36, "Field hockey": 36, "Pool|Billiards": 36, "Karate": 36, "Weightlifting": 36, "Rowing": 38, "Diving": 38,
+        "Handball": 40, "Snooker": 40, "Judo": 40, "Triathlon": 40, "Water polo": 42, "Curling": 42, "Taekwondo": 42,
+        "Sailing": 42, "Polo": 44, "Squash": 44, "Equestrian|Show jumping|Horse riding": 44, "Bobsleigh|Bobsled": 46,
+        "Rock climbing|Climbing": 48,
+        "Kayaking|Canoeing": 50, "Dodgeball": 50, "Kickboxing": 50, "Netball": 52, "Ultimate|Ultimate frisbee": 52,
+        "Racquetball": 52, "Sumo|Sumo wrestling": 52, "Rodeo": 54, "Cross-country skiing": 56, "Speed skating": 56,
+        "Luge": 58, "Biathlon": 58, "Croquet": 58, "Australian rules football|Aussie rules|AFL": 60, "Bocce": 62,
+        "Skeleton": 64, "Padel|Paddle tennis": 64, "Hurling": 66, "Gaelic football": 66, "Pétanque|Petanque|Boules": 66,
+        "Kabaddi": 68, "Jai alai": 70, "Modern pentathlon": 70, "Orienteering": 72, "Korfball": 74,
+        "Roller derby": 76, "Floorball": 78, "Underwater hockey": 80, "Sepak takraw": 82, "Bandy": 84, "Canoe polo": 84,
+        "Teqball": 84, "Bossaball": 84, "Shinty": 86, "Kin-ball": 86, "Buzkashi": 86, "Fistball": 86, "Tchoukball": 86,
+        "Pesäpallo|Pesapallo": 88, "Hornussen": 88,
+        "Camogie": 90, "Calcio storico": 92, "Chess boxing|Chessboxing": 92, "Jianzi": 94, "Bo-taoshi": 95, "Kemari": 95,
+        "Ki-o-rahi": 96, "Sipa": 96
+      }
+    }
+  ]
+}

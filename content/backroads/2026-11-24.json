@@ -1,0 +1,65 @@
+{
+  "rounds": [
+    {
+      "prompt": "Name a constellation",
+      "answers": {
+        "Orion": 3, "Ursa Major|Great Bear|Big Dipper": 5, "Leo": 10, "Ursa Minor|Little Bear|Little Dipper": 12, "Taurus": 12,
+        "Gemini": 12, "Scorpius|Scorpio": 14, "Aries": 14, "Cancer": 16, "Virgo": 16, "Cassiopeia": 18, "Libra": 18,
+        "Sagittarius": 18, "Aquarius": 18, "Pisces": 18, "Capricornus|Capricorn": 20, "Draco": 24,
+        "Pegasus": 26, "Andromeda": 26, "Hercules": 30, "Cygnus": 34, "Perseus": 34, "Crux|Southern Cross": 36,
+        "Canis Major": 36, "Hydra": 36, "Lyra": 38, "Centaurus": 40, "Phoenix": 40, "Ophiuchus": 42, "Canis Minor": 44,
+        "Aquila": 44, "Cetus": 44, "Cepheus": 46, "Corona Borealis": 46, "Auriga": 48, "Boötes|Bootes": 48, "Lupus": 48,
+        "Carina": 48,
+        "Monoceros": 56, "Corvus": 56, "Serpens": 56, "Triangulum": 56, "Eridanus": 58, "Lepus": 58, "Delphinus": 58,
+        "Corona Australis": 60, "Lynx": 60, "Columba": 62, "Sagitta": 62, "Crater": 62, "Coma Berenices": 62, "Vela": 62,
+        "Ara": 64, "Pavo": 64, "Tucana": 64, "Canes Venatici": 64, "Puppis": 64, "Grus": 66, "Piscis Austrinus": 66,
+        "Vulpecula": 68, "Lacerta": 68, "Musca": 68, "Dorado": 68, "Indus": 70, "Sculptor": 70, "Volans": 72,
+        "Chamaeleon": 72, "Apus": 72, "Fornax": 72, "Hydrus": 72, "Equuleus": 74,
+        "Camelopardalis": 76, "Leo Minor": 76, "Pyxis": 78, "Scutum": 78, "Circinus": 80, "Norma": 80, "Sextans": 80,
+        "Triangulum Australe": 80, "Telescopium": 82, "Microscopium": 82, "Octans": 82, "Reticulum": 84, "Horologium": 84,
+        "Antlia": 90, "Pictor": 90, "Caelum": 90, "Mensa": 92
+      }
+    },
+    {
+      "prompt": "Name a cheese",
+      "answers": {
+        "Cheddar": 3, "Mozzarella": 4, "Parmesan|Parmigiano Reggiano|Parmigiano": 6, "Brie": 8, "Swiss|Swiss cheese": 10,
+        "Gouda": 10, "Feta": 12, "Blue cheese|Blue": 14, "American|American cheese": 14, "Camembert": 16, "Cream cheese": 16,
+        "Cottage cheese": 18, "Ricotta": 20, "Provolone": 22, "Monterey Jack|Jack": 22, "Goat cheese|Chèvre|Chevre": 22,
+        "Gorgonzola": 24,
+        "Halloumi": 26, "Roquefort": 26, "Pepper Jack": 26, "Mascarpone": 26, "Colby": 28, "Stilton": 28, "Edam": 30,
+        "Gruyère|Gruyere": 30, "Velveeta": 30, "Emmental|Emmentaler": 32, "Pecorino|Pecorino Romano": 32, "Burrata": 32,
+        "Manchego": 34, "Muenster|Munster": 34, "String cheese": 34, "Havarti": 36, "Paneer": 36, "Asiago": 38,
+        "Queso fresco": 38, "Fontina": 40, "Raclette": 42, "Wensleydale": 44, "Red Leicester": 44, "Jarlsberg": 46,
+        "Limburger": 46, "Boursin": 48, "Comté|Comte": 48, "Taleggio": 48,
+        "Labneh": 52, "Cotija": 54, "Double Gloucester": 56, "Danish blue|Danablu": 56, "Oaxaca|Quesillo": 58,
+        "Reblochon": 60, "Cheshire": 60, "Port Salut": 62, "Caerphilly": 62, "Lancashire": 64, "Leerdammer": 64,
+        "Cambozola": 64, "Brunost|Gjetost": 66, "Tilsit|Tilsiter": 66, "Scamorza": 66, "Époisses|Epoisses": 68,
+        "Saint Agur": 70, "Pont-l'Évêque|Pont l'Eveque": 70, "Morbier": 70, "Bel Paese": 70, "Kefalotyri": 72,
+        "Mimolette": 72, "Manouri": 74, "Stracchino": 74, "Red Windsor": 74, "Ossau-Iraty": 74,
+        "Quark": 76, "Skyr": 78, "Shropshire Blue": 78, "Appenzeller": 78, "Casu marzu": 80, "Kashkaval": 80,
+        "Vacherin|Vacherin Mont d'Or": 80, "Cornish Yarg|Yarg": 82, "Tête de Moine|Tete de Moine": 82, "Maroilles": 82,
+        "Mahón|Mahon": 82, "Cabrales": 82, "Bryndza": 82, "Langres": 84, "Livarot": 84, "Idiazábal|Idiazabal": 84,
+        "Graviera": 84, "Banon": 86, "Sbrinz": 86, "Torta del Casar": 88, "Formaggio di Fossa": 88,
+        "Bergkäse|Bergkase": 90, "Stinking Bishop": 90, "Caciocavallo": 90, "Pule": 92, "Chhurpi": 92, "Oscypek": 92,
+        "Tulum": 93, "Milbenkäse|Milbenkase|Mite cheese": 94, "Kurut|Qurut": 94, "Bandel": 95, "Vieux-Boulogne": 96
+      }
+    },
+    {
+      "prompt": "Name a country in Asia",
+      "answers": {
+        "China": 2, "Japan": 3, "India": 3, "South Korea|Korea|Republic of Korea": 6, "Thailand": 8, "Vietnam|Viet Nam": 8,
+        "North Korea|DPRK": 10, "Indonesia": 12, "Philippines": 12, "Russia": 14, "Pakistan": 14, "Iran": 14,
+        "Saudi Arabia": 16, "Iraq": 16, "Afghanistan": 16, "Singapore": 16, "Israel": 18, "Malaysia": 18, "Taiwan": 18,
+        "Turkey|Türkiye|Turkiye": 20, "Nepal": 24,
+        "Bangladesh": 26, "Syria": 26, "United Arab Emirates|UAE": 28, "Sri Lanka": 28, "Cambodia": 30, "Mongolia": 30,
+        "Kazakhstan": 32, "Myanmar|Burma": 34, "Jordan": 34, "Laos": 36, "Qatar": 36, "Lebanon": 36, "Yemen": 38,
+        "Kuwait": 40, "Oman": 44, "Uzbekistan": 46,
+        "Palestine|State of Palestine": 50, "Bhutan": 50, "Maldives": 52, "Armenia": 54, "Azerbaijan": 56, "Bahrain": 58,
+        "Kyrgyzstan": 62, "Tajikistan": 64, "Georgia": 66,
+        "Turkmenistan": 76, "Brunei": 78, "Cyprus": 82,
+        "Timor-Leste|East Timor": 90
+      }
+    }
+  ]
+}
