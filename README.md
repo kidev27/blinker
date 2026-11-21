@@ -10,9 +10,8 @@ Works in mobile browsers (primary) and desktop browsers.
 
 ## Run it
 
-Needs Node.js 22 or 24 LTS (the server runs TypeScript directly, no build step). Run `nvm use 24`.
-Newer non-LTS versions such as Node 26 have no prebuilt SQLite binary, so `npm install` would try
-to compile it and fail without a C++ toolchain.
+Needs Node.js 22.18 or newer, Node 26 included. The server runs TypeScript directly with no build
+step, and SQLite is built into Node (`node:sqlite`), so `npm install` compiles nothing.
 
 ```bash
 npm install
