@@ -75,7 +75,7 @@
   --text: #201a2b;
   --muted: #554b5f;
   --accent: #ffb020;
-  --accent-text: #8a4d00;
+  --accent-text: #743f00;
   --on-accent: #1a1204;
   --accent-dim: #e7cfa6;
   --crash: #9b1c12;
@@ -287,8 +287,6 @@ button:disabled { opacity: 0.55; cursor: default; }
   align-items: center;
   gap: 8px;
   padding: max(6px, env(safe-area-inset-top)) 8px 6px 16px;
-  background: color-mix(in srgb, var(--panel) 88%, transparent);
-  border-bottom: var(--bw) solid var(--line);
 }
 .brand {
   display: inline-flex;
@@ -318,10 +316,11 @@ button:disabled { opacity: 0.55; cursor: default; }
 .icon:hover { color: var(--text); }
 
 .progress { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
-.step { width: 22px; height: 8px; border-radius: 4px; background: var(--line); }
-.step.current { background: transparent; box-shadow: inset 0 0 0 2px var(--accent); }
-.step.banked { background: var(--accent); }
-.step.crashed { background: var(--crash); }
+/* Unplayed rounds are outlines in --muted so they stay visible on the sky (3:1 for UI marks). */
+.step { width: 22px; height: 8px; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--muted); }
+.step.current { box-shadow: inset 0 0 0 2px var(--accent), 0 0 8px var(--accent); }
+.step.banked { background: var(--accent); box-shadow: none; }
+.step.crashed { background: var(--crash); box-shadow: none; }
 
 .scroll { flex: 1; overflow-y: auto; padding: 20px 16px; }
 .center { display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center; }
