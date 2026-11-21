@@ -1,24 +1,16 @@
 import { expect, it } from 'vitest'
 import { shareText } from '../src/client/core/share.ts'
-import { liveCount, nextStreak } from '../src/client/core/streaks.ts'
+import { stats } from '../src/client/core/streaks.ts'
 
-it('builds a streak day by day', () => {
-  let s = nextStreak(null, '2026-11-21')
-  expect(s).toEqual({ last: '2026-11-21', count: 1, best: 1 })
-  s = nextStreak(s, '2026-11-21')
-  expect(s.count).toBe(1)
-  s = nextStreak(s, '2026-11-22')
-  expect(s).toEqual({ last: '2026-11-22', count: 2, best: 2 })
-  s = nextStreak(s, '2026-11-25')
-  expect(s).toEqual({ last: '2026-11-25', count: 1, best: 2 })
+it('counts streaks across gaps and keeps the best', () => {
+  const h = { '2026-11-01': 100, '2026-11-02': 250, '2026-11-03': 80, '2026-11-05': 300, '2026-11-06': 10 }
+  expect(stats(h, '2026-11-06')).toEqual({ played: 5, streak: 2, bestStreak: 3, bestDay: 300 })
+  expect(stats(h, '2026-11-07')).toMatchObject({ streak: 2 }) // yesterday still counts
+  expect(stats(h, '2026-11-08')).toMatchObject({ streak: 0, bestStreak: 3 })
 })
 
-it('shows a streak only while it is alive', () => {
-  const s = { last: '2026-11-22', count: 4, best: 4 }
-  expect(liveCount(s, '2026-11-22')).toBe(4)
-  expect(liveCount(s, '2026-11-23')).toBe(4)
-  expect(liveCount(s, '2026-11-24')).toBe(0)
-  expect(liveCount(null, '2026-11-24')).toBe(0)
+it('handles an empty history', () => {
+  expect(stats({}, '2026-11-21')).toEqual({ played: 0, streak: 0, bestStreak: 0, bestDay: 0 })
 })
 
 it('share text works for any mode and spoils nothing', () => {
