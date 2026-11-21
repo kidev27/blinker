@@ -653,7 +653,11 @@ button:disabled { opacity: 0.55; cursor: default; }
 .answer { display: flex; gap: 8px; }
 .answer.shake { animation: shake 0.35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+.answer input::-webkit-search-decoration,
+.answer input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
 .answer input {
+  -webkit-appearance: none;
+  appearance: none;
   flex: 1;
   width: 0; /* grow from zero so the input never forces the row wider than the screen */
   min-width: 0;
