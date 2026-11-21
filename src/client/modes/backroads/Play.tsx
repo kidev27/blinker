@@ -306,7 +306,10 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
                 autocapitalize="off"
                 spellcheck={false}
                 enterkeyhint="go"
-                name="answer"
+                // A search field: iOS never offers contact AutoFill on these, and the nearby
+                // "Name a …" prompt otherwise makes it look like a person's-name field.
+                type="search"
+                name="search"
                 placeholder="Type an answer…"
                 aria-label="Your answer"
               />
