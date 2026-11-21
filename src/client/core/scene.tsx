@@ -1,3 +1,5 @@
+import { Roadside } from './roadside.tsx'
+
 // The night road behind every screen. Modes steer it through setScene(); CSS does the rest.
 export type Mood = 'idle' | 'drive' | 'crash' | 'exit'
 
@@ -27,6 +29,7 @@ export const Scene = () => (
     <div class="road">
       <div class="road-plane" />
     </div>
+    <Roadside />
     <div class="posts">
       {POSTS.flatMap((i) => [
         <span key={`l${i}`} class="post left" style={{ '--i': i }} />,
