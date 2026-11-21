@@ -29,6 +29,15 @@
   --hills: #0a0c14;
   --post: #cfd4de;
   --town: #ffcf70;
+  /* Roadside props */
+  --prop: #10121a;
+  --prop-edge: #1d2029;
+  --cactus: #22392a;
+  --window: #ffcf70;
+  --neon: #ff5c8a;
+  --neon-2: #4fe3d0;
+  --board: #e6dcc4;
+  --board-text: #191919;
 
   --panel: #0d1118;
   --panel-2: #161b25;
@@ -68,6 +77,11 @@
   --hills: #6e5a7e;
   --post: #f4f0f8;
   --town: rgba(255, 220, 150, 0);
+  --prop: #4b3d58;
+  --prop-edge: #5e4d6c;
+  --cactus: #4c6849;
+  --window: #ffe2a6;
+  --board: #f6eedb;
 
   --panel: #fff8ef;
   --panel-2: #f6ecdf;
@@ -132,6 +146,8 @@ button:disabled { opacity: 0.55; cursor: default; }
 
 /* ---------- Scene ---------- */
 .scene {
+  /* Time for roadside things to travel from the horizon to the viewer; shrinks as the run speeds up. */
+  --dur: calc(2.4s - var(--speed) * 1.7s);
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -209,7 +225,6 @@ button:disabled { opacity: 0.55; cursor: default; }
   right: 0;
   top: 58%;
   bottom: 0;
-  --dur: calc(2.4s - var(--speed) * 1.7s);
 }
 .post {
   position: absolute;
@@ -231,6 +246,28 @@ button:disabled { opacity: 0.55; cursor: default; }
   from { transform: translate(calc(var(--side) * 3px), 0) scale(0.03); opacity: 0; }
   10% { opacity: 1; }
   to { transform: translate(calc(var(--side) * min(470px, 74vw)), 47vh) scale(1.5); opacity: 1; }
+}
+/* Roadside props: same perspective path as the posts but farther out, each passing once per
+   cycle (travel is the first 30% of the cycle) so only one or two are on screen at a time. */
+.props { position: absolute; left: 0; right: 0; top: 58%; bottom: 0; }
+.prop {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform-origin: 50% 100%;
+  translate: -50% -100%;
+  opacity: 0;
+  animation: roadside calc(var(--dur) * 3.4) linear infinite;
+  animation-delay: calc(var(--dur) * 3.4 * var(--k) * -1);
+}
+.prop svg { display: block; }
+.prop .neon { filter: drop-shadow(0 0 3px var(--neon)); }
+.prop .neon.teal { filter: drop-shadow(0 0 3px var(--neon-2)); }
+@keyframes roadside {
+  0% { transform: translate(calc(var(--side) * 8px), 0) scale(0.03); opacity: 0; animation-timing-function: cubic-bezier(0.42, 0, 0.92, 0.6); }
+  2% { opacity: 1; }
+  30% { transform: translate(calc(var(--side) * min(740px, 112vw)), 47vh) scale(2.1); opacity: 1; }
+  30.01%, 100% { transform: translate(calc(var(--side) * min(740px, 112vw)), 47vh) scale(2.1); opacity: 0; }
 }
 .road {
   position: absolute;
@@ -694,5 +731,5 @@ button:disabled { opacity: 0.55; cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .signal-arrow { fill: var(--accent); filter: none; }
-  .posts { display: none; }
+  .posts, .props { display: none; }
 }
