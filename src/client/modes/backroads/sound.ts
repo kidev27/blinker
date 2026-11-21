@@ -1,16 +1,8 @@
 // Tiny Web Audio cues, no audio files. Browsers only allow audio after a user gesture, so
 // unlock() runs on the Start tap.
-import { load, save } from '../../core/storage.ts'
+import { getSettings } from '../../core/settings.ts'
 
 let ctx: AudioContext | null = null
-let muted = load('blinker:muted', false)
-
-export const isMuted = () => muted
-export function setMuted(m: boolean) {
-  muted = m
-  save('blinker:muted', m)
-}
-
 export function unlock() {
   try {
     ctx ??= new AudioContext()
@@ -21,7 +13,7 @@ export function unlock() {
 }
 
 function tone(freq: number, ms: number, gain: number, type: OscillatorType = 'square', delayMs = 0) {
-  if (!ctx || muted) return
+  if (!ctx || getSettings().muted) return
   const t = ctx.currentTime + delayMs / 1000
   const o = ctx.createOscillator()
   const g = ctx.createGain()

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'preact/hooks'
-import { localDayKey } from '../shared/day.ts'
-import { getStreak, liveCount } from './core/streaks.ts'
+import { dayNumber, localDayKey } from '../shared/day.ts'
+import { Arrow } from './core/icons.tsx'
+import { Scene, setScene } from './core/scene.tsx'
+import { Sheet } from './core/Sheet.tsx'
+import { getHistory, stats } from './core/streaks.ts'
+import { TopBar } from './core/TopBar.tsx'
+import type { ClientMode } from './mode.ts'
 import { clientModes } from './modes/registry.ts'
 
 const route = () => location.hash.replace(/^#\/?/, '')
@@ -14,36 +19,59 @@ export function App() {
   }, [])
 
   const mode = clientModes.find((m) => m.meta.id === path)
-  return mode ? <mode.Play day={localDayKey()} /> : <Home />
+  return (
+    <>
+      <Scene />
+      {mode ? <mode.Play day={localDayKey()} /> : <Home />}
+    </>
+  )
 }
 
 function Home() {
   const today = localDayKey()
+  const [rules, setRules] = useState<ClientMode | null>(null)
+  useEffect(() => setScene('idle', 0.15), [])
+  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
+
   return (
     <div class="app">
+      <TopBar brand={false} />
       <main class="scroll home">
         <h1 class="wordmark">
-          <svg class="arrow on" viewBox="0 0 48 32" aria-hidden="true">
-            <path d="M2 11h24V2l20 14-20 14v-9H2z" />
-          </svg>
+          <Arrow class="signal-arrow blinking" />
           BLINKER
         </h1>
         <p class="tagline">A daily drive down the backroads of what you know.</p>
-        <ul class="modes">
-          {clientModes.map(({ meta }) => {
-            const streak = liveCount(getStreak(meta.id), today)
-            return (
-              <li key={meta.id}>
-                <a class="mode-card" href={`#/${meta.id}`}>
-                  <span class="mode-title">{meta.title}</span>
-                  <span class="mode-tag">{meta.tagline}</span>
-                  {streak > 0 && <span class="mode-streak">{streak}-day streak</span>}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
+        <p class="drive-meta">
+          Drive #{dayNumber(today)} ∙ {date}
+        </p>
+        {clientModes.map((m) => {
+          const history = getHistory(m.meta.id)
+          const { streak } = stats(history, today)
+          return (
+            <section key={m.meta.id} class="mode-card" aria-labelledby={`mode-${m.meta.id}`}>
+              <h2 id={`mode-${m.meta.id}`}>{m.meta.title}</h2>
+              <p>{m.meta.tagline}</p>
+              <a class="button primary big" href={`#/${m.meta.id}`}>
+                {today in history ? 'See today’s drive' : 'Start today’s drive'}
+              </a>
+              <div class="mode-foot">
+                <span>{streak > 0 ? `${streak}-day streak` : ''}</span>
+                {m.Rules && (
+                  <button class="link" onClick={() => setRules(m)}>
+                    How to play
+                  </button>
+                )}
+              </div>
+            </section>
+          )
+        })}
       </main>
+      {rules?.Rules && (
+        <Sheet open title={`How to play ${rules.meta.title}`} onClose={() => setRules(null)}>
+          <rules.Rules />
+        </Sheet>
+      )}
     </div>
   )
 }

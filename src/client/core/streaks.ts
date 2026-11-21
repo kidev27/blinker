@@ -1,29 +1,42 @@
 import { addDays } from '../../shared/day.ts'
 import { load, save } from './storage.ts'
 
-export interface Streak {
-  last: string
-  count: number
-  best: number
+/** Day key to that day's total score, per mode, kept on this device. */
+export type History = Record<string, number>
+
+export interface Stats {
+  played: number
+  /** Consecutive days ending today or yesterday; 0 once a day is missed. */
+  streak: number
+  bestStreak: number
+  /** Highest daily total. */
+  bestDay: number
 }
 
-const key = (modeId: string) => `blinker:streak:${modeId}`
+const key = (modeId: string) => `blinker:history:${modeId}`
 
-/** Streak after finishing `day`. Same day twice changes nothing; a missed day restarts at 1. */
-export function nextStreak(prev: Streak | null, day: string): Streak {
-  if (prev?.last === day) return prev
-  const count = prev && addDays(prev.last, 1) === day ? prev.count + 1 : 1
-  return { last: day, count, best: Math.max(count, prev?.best ?? 0) }
+export const getHistory = (modeId: string) => load<History>(key(modeId), {})
+
+export function recordResult(modeId: string, day: string, total: number): History {
+  const h = { ...getHistory(modeId), [day]: total }
+  save(key(modeId), h)
+  return h
 }
 
-/** Current streak as of `today`: still alive if the last finished day was today or yesterday. */
-export const liveCount = (s: Streak | null, today: string) =>
-  s && (s.last === today || addDays(s.last, 1) === today) ? s.count : 0
-
-export const getStreak = (modeId: string) => load<Streak | null>(key(modeId), null)
-
-export function recordDay(modeId: string, day: string): Streak {
-  const s = nextStreak(getStreak(modeId), day)
-  save(key(modeId), s)
-  return s
+export function stats(h: History, today: string): Stats {
+  const days = Object.keys(h).sort()
+  let run = 0
+  let bestStreak = 0
+  days.forEach((d, i) => {
+    run = i > 0 && addDays(days[i - 1], 1) === d ? run + 1 : 1
+    bestStreak = Math.max(bestStreak, run)
+  })
+  const last = days.at(-1)
+  const alive = last === today || (last !== undefined && addDays(last, 1) === today)
+  return {
+    played: days.length,
+    streak: alive ? run : 0,
+    bestStreak,
+    bestDay: Math.max(0, ...Object.values(h)),
+  }
 }

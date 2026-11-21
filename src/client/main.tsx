@@ -1,5 +1,6 @@
 import { render } from 'preact'
 import { App } from './app.tsx'
+import { applySettings } from './core/settings.ts'
 import './theme.css'
 
 // Keep the layout inside the visible area when the on-screen keyboard opens (iOS ignores dvh for it).
@@ -14,4 +15,5 @@ if (vv) {
   fit()
 }
 
+applySettings()
 render(<App />, document.getElementById('app')!)

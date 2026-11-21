@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { config } from '../../../shared/modes/backroads.ts'
+import { Arrow } from '../../core/icons.tsx'
 import { tick } from './sound.ts'
 
 const BLINK_MS = 400
@@ -35,9 +36,7 @@ export function Signal({ deadline, onExpire }: { deadline: number; onExpire: () 
   const secs = Math.ceil(left / 1000)
   return (
     <div class={`signal ${left < HYPER_FROM ? 'hurry' : ''}`}>
-      <svg class={`arrow ${on ? 'on' : ''}`} viewBox="0 0 48 32" aria-hidden="true">
-        <path d="M2 11h24V2l20 14-20 14v-9H2z" />
-      </svg>
+      <Arrow class={`signal-arrow ${on ? 'on' : ''}`} />
       <span class="secs" role="timer" aria-label={`${secs} seconds left`}>
         {String(secs).padStart(2, '0')}
       </span>
