@@ -10,25 +10,6 @@ const Cactus = () => (
   </svg>
 )
 
-const Diner = () => (
-  <svg viewBox="0 0 170 106" width="170" height="106">
-    <rect x="8" y="48" width="154" height="58" fill="var(--prop)" />
-    <rect x="3" y="43" width="164" height="7" fill="var(--prop-edge)" />
-    <g fill="var(--window)">
-      <rect x="18" y="62" width="32" height="20" />
-      <rect x="58" y="62" width="32" height="20" />
-      <rect x="120" y="62" width="32" height="20" />
-      <rect x="98" y="64" width="14" height="42" opacity="0.7" />
-    </g>
-    <rect x="58" y="34" width="5" height="10" fill="var(--prop)" />
-    <rect x="107" y="34" width="5" height="10" fill="var(--prop)" />
-    <g class="neon">
-      <rect x="40" y="8" width="90" height="28" rx="5" fill="#0a0a0c" stroke="var(--neon)" stroke-width="2.5" />
-      <text x="85" y="29" font-size="19" fill="var(--neon)" {...LED}>DINER</text>
-    </g>
-  </svg>
-)
-
 const GasSign = () => (
   <svg viewBox="0 0 64 150" width="64" height="150">
     <rect x="29" y="58" width="6" height="92" fill="var(--prop)" />
@@ -68,12 +49,11 @@ const Billboard = () => (
 /** Order sets who passes when; sides alternate so the road never crowds on one side. */
 const PROPS: [preact.FunctionComponent, -1 | 1][] = [
   [Cactus, -1],
-  [Diner, 1],
-  [GasSign, -1],
-  [Cactus, 1],
+  [GasSign, 1],
   [MotelSign, -1],
-  [Billboard, 1],
-  [Cactus, -1],
+  [Cactus, 1],
+  [Billboard, -1],
+  [Cactus, 1],
 ]
 
 export const Roadside = () => (
