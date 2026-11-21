@@ -686,6 +686,17 @@ button:disabled { opacity: 0.55; cursor: default; }
   cursor: pointer;
 }
 .exit:hover:not(:disabled) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--exit) 35%, transparent); }
+/* Keyboard hint on the Pull over button; only shown where a hardware keyboard is likely. */
+.key {
+  margin-left: 10px;
+  padding: 1px 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 4px;
+  font: 700 11px var(--font);
+  letter-spacing: 0.04em;
+  vertical-align: 2px;
+}
+@media (hover: none), (pointer: coarse) { .key { display: none; } }
 .exit-tab {
   position: absolute;
   top: -12px;
