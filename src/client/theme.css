@@ -146,7 +146,10 @@ button:disabled { opacity: 0.55; cursor: default; }
   /* Time for roadside things to travel from the horizon to the viewer; shrinks as the run speeds up. */
   --dur: calc(2.4s - var(--speed) * 1.7s);
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--vtop, 0);
+  height: var(--vh, 100dvh);
   overflow: hidden;
   background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-mid) 42%, var(--horizon) 58%, var(--ground) 58.3%);
   transition: background 0.6s;
@@ -721,6 +724,33 @@ button:disabled { opacity: 0.55; cursor: default; }
   border: var(--bw) dashed var(--line);
   border-radius: 10px;
 }
+
+/* ---------- Typing on a short screen (phone keyboard up) ----------
+   Keep only what answering needs in view: the question, miles and the sign on one row, the last
+   result, the timer and the input. Everything else returns when the keyboard closes. */
+:root[data-tight] .app:has(.answer input:focus) .topbar,
+:root[data-tight] .app:has(.answer input:focus) .drive > .eyebrow,
+:root[data-tight] .app:has(.answer input:focus) .picks { display: none; }
+:root[data-tight] .app:has(.answer input:focus) .drive { padding: max(8px, env(safe-area-inset-top)) 12px 6px; }
+:root[data-tight] .app:has(.answer input:focus) .prompt { margin-bottom: 8px; padding: 8px 12px; font-size: 19px; }
+:root[data-tight] .app:has(.answer input:focus) .dash { align-items: center; margin-bottom: 6px; }
+:root[data-tight] .app:has(.answer input:focus) .odometer { display: flex; align-items: baseline; gap: 6px; padding: 5px 10px; white-space: nowrap; }
+:root[data-tight] .app:has(.answer input:focus) .odo-digits { font-size: 20px; }
+:root[data-tight] .app:has(.answer input:focus) .odo-unit { display: none; }
+:root[data-tight] .app:has(.answer input:focus) .odo-digits::after { content: ' mi'; font: 700 12px var(--font); color: #aab3c2; text-shadow: none; }
+:root[data-tight] .app:has(.answer input:focus) .sign { flex-direction: row; align-items: baseline; gap: 6px; padding: 4px 10px; }
+:root[data-tight] .app:has(.answer input:focus) .sign-label { font-size: 9px; }
+:root[data-tight] .app:has(.answer input:focus) .sign-text { font-size: 15px; white-space: nowrap; }
+:root[data-tight] .app:has(.answer input:focus) .last { margin: 0; font-size: 14px; }
+:root[data-tight] .app:has(.answer input:focus) .controls { gap: 8px; padding: 8px 12px; }
+/* Timer on one row: fuel bar then seconds. The arrow hides here; its tick still plays. */
+:root[data-tight] .app:has(.answer input:focus) .signal { grid-template-columns: 1fr auto; }
+:root[data-tight] .app:has(.answer input:focus) .signal .signal-arrow { display: none; }
+:root[data-tight] .app:has(.answer input:focus) .fuel { grid-column: 1; grid-row: 1; }
+:root[data-tight] .app:has(.answer input:focus) .secs { grid-column: 2; grid-row: 1; font-size: 20px; }
+:root[data-tight] .app:has(.answer input:focus) .answer input,
+:root[data-tight] .app:has(.answer input:focus) .answer .button { min-height: 44px; }
+:root[data-tight] .app:has(.answer input:focus) .exit { min-height: 44px; margin-top: 4px; padding: 8px; font-size: 15px; }
 
 /* ---------- Larger screens ---------- */
 @media (max-width: 380px) {
