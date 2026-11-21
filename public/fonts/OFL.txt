@@ -1,3 +1,5 @@
+Doto: Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto)
+Overpass and Overpass Mono:
 Copyright 2021 The Overpass Project Authors (https://github.com/RedHatOfficial/Overpass) Overpass-Italic[wght].ttf: Copyright 2021 The Overpass Project Authors (https://github.com/RedHatOfficial/Overpass)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

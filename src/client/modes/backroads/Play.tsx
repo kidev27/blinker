@@ -78,7 +78,7 @@ export function Play({ day }: { day: string }) {
     <div class="app">
       <TopBar center={data && <Progress rounds={data.rounds} current={active ?? next?.slot} />} onHelp={help} />
       {screen}
-      <Sheet open={rulesOpen} title="How to play Backroads" onClose={closeRules}>
+      <Sheet open={rulesOpen} title="How to play" onClose={closeRules}>
         <Rules />
         <button class="button primary big" onClick={closeRules}>Let’s drive</button>
       </Sheet>
@@ -147,7 +147,7 @@ function Intro(props: { day: Day; round: Round; onStart: () => Promise<void>; on
         <button class="button primary big" disabled={busy} onClick={start}>
           {busy ? 'Starting…' : `Start round ${round.slot + 1}`}
         </button>
-        <button class="link" onClick={props.onHelp}>How to play</button>
+        <button class="tiny-link" onClick={props.onHelp}>► How to play</button>
       </footer>
     </>
   )
@@ -232,7 +232,7 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
         <p class="eyebrow">
           Drive #{day.number} ∙ Round {round.slot + 1} of {day.rounds.length}
         </p>
-        <h1 class="prompt">{round.prompt}</h1>
+        <h1 class="prompt led-board">{round.prompt}</h1>
         <div class="dash">
           <div class="odometer" aria-label={`${v.pot} miles ${playing ? 'in the pot' : v.status === 'banked' ? 'banked' : 'lost'}`}>
             <span class="odo-digits">{String(v.pot).padStart(4, '0')}</span>
@@ -331,7 +331,7 @@ function Results({ day }: { day: Day }) {
     <>
       <main class="scroll results">
         <p class="eyebrow">Drive #{day.number} complete</p>
-        <p class="total">
+        <p class="total led-board">
           {total}<small>mi</small>
         </p>
         <ol class="round-rows" aria-label="Rounds">
