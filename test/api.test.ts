@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { buildApp } from '../server/app.ts'
-import { openDb, type Db } from '../server/db.ts'
+import { openDb, userVersion, type Db } from '../server/db.ts'
 import type { ServerMode } from '../server/mode.ts'
 import { backroads } from '../server/modes/backroads.ts'
 import { config } from '../src/shared/modes/backroads.ts'
@@ -160,6 +160,6 @@ describe('extensibility', () => {
 
 describe('migrations', () => {
   it('records the applied version and is idempotent', () => {
-    expect(db.pragma('user_version', { simple: true })).toBe(1)
+    expect(userVersion(db)).toBe(1)
   })
 })
