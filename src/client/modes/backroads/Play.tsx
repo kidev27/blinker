@@ -306,10 +306,13 @@ function Drive(props: { day: Day; round: Round; onUpdate: (r: RoundState) => voi
                 autocapitalize="off"
                 spellcheck={false}
                 enterkeyhint="go"
-                placeholder="Name one…"
-                aria-label={`Answer for: ${round.prompt}`}
+                name="answer"
+                placeholder="Type an answer…"
+                aria-label="Your answer"
               />
-              <button class="button primary" type="submit" disabled={!text.trim()}>Go</button>
+              <button class="button primary" type="submit" disabled={!text.trim()} onPointerDown={(e) => e.preventDefault()}>
+                Go
+              </button>
             </form>
             <PullOver deadline={deadline} disabled={busy} onStop={() => void send({ type: 'stop' })} />
           </>

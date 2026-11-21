@@ -9,6 +9,8 @@ if (vv) {
   const fit = () => {
     document.documentElement.style.setProperty('--vh', `${vv.height}px`)
     document.documentElement.style.setProperty('--vtop', `${vv.offsetTop}px`)
+    // Little height left (a phone keyboard is up, or a short window): the play screen compacts.
+    document.documentElement.toggleAttribute('data-tight', vv.height < 560)
   }
   vv.addEventListener('resize', fit)
   vv.addEventListener('scroll', fit)
