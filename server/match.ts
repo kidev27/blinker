@@ -19,7 +19,9 @@ export interface AnswerIndex<A> {
 }
 
 /** Throws if two different answers share a normalized name or alias. */
-export function buildIndex<A extends { name: string; aliases: string[] }>(answers: A[]): AnswerIndex<A> {
+// Answers with `fuzzy: false` match only exactly: with thousands of obscure names, typo matching
+// would land on surprising answers.
+export function buildIndex<A extends { name: string; aliases: string[]; fuzzy?: boolean }>(answers: A[]): AnswerIndex<A> {
   const exact = new Map<string, number>()
   answers.forEach((a, i) => {
     for (const raw of [a.name, ...a.aliases]) {
@@ -30,7 +32,8 @@ export function buildIndex<A extends { name: string; aliases: string[] }>(answer
       exact.set(key, i)
     }
   })
-  return { answers, exact, canonical: answers.map((a, i) => ({ key: normalize(a.name), i })) }
+  const canonical = answers.flatMap((a, i) => (a.fuzzy === false ? [] : [{ key: normalize(a.name), i }]))
+  return { answers, exact, canonical }
 }
 
 /** Typo allowance by input length: none under 5 chars, 1 up to 8, 2 from 9. */
