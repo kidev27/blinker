@@ -19,18 +19,24 @@ export const FUZZY_FAME = 20
 
 /**
  * Catalog entries to add under the hand-written answers. An entry sharing a name or alias with a
- * hand answer is the same thing and is skipped; an alias clashing with a better-known entry is dropped.
+ * hand answer is the same thing: its other names join that answer. An alias clashing with a
+ * better-known entry is dropped.
  */
 function fromCatalog(entries: CatalogEntry[], hand: Answer[]): Answer[] {
-  const same = new Set(hand.flatMap((a) => [a.name, ...a.aliases].map(normalize)))
-  const taken = new Set(same)
+  const owner = new Map<string, Answer>()
+  for (const a of hand) for (const s of [a.name, ...a.aliases]) owner.set(normalize(s), a)
+  const taken = new Set(owner.keys())
   const out: Answer[] = []
   for (const [name, , fame, aliases] of entries) {
     const k = normalize(name)
-    if (!k || taken.has(k) || aliases.some((s) => same.has(normalize(s)))) continue
-    const own = [...new Set(aliases.map((a) => a.trim()))].filter((a) => normalize(a) && normalize(a) !== k && !taken.has(normalize(a)))
-    ;[k, ...own.map(normalize)].forEach((x) => taken.add(x))
-    out.push({ name, aliases: own, obscurity: catalogObscurity(fame), fuzzy: fame >= FUZZY_FAME })
+    if (!k) continue
+    const twin = [name, ...aliases].map((s) => owner.get(normalize(s))).find(Boolean)
+    const own = [...new Set([name, ...aliases].map((a) => a.trim()))].filter((a) => normalize(a) && !taken.has(normalize(a)))
+    own.forEach((a) => taken.add(normalize(a)))
+    // The same thing as a hand answer: its other names become that answer's aliases ("kiwi fruit" for Kiwi).
+    if (twin) twin.aliases.push(...own)
+    else if (own.some((a) => normalize(a) === k))
+      out.push({ name, aliases: own.filter((a) => normalize(a) !== k), obscurity: catalogObscurity(fame), fuzzy: fame >= FUZZY_FAME })
   }
   return out
 }

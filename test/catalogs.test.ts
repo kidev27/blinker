@@ -6,7 +6,7 @@ import { testRound } from './helpers.ts'
 // Best known first, as the builder writes them.
 const catalogs: Catalogs = new Map([['things', { id: 'things', unit: 'name', source: 'test', entries: [
   ['Famous extra', 0, 90, ['celebrity']],
-  ['Topaz gem', 0, 80, ['tpz']], // shares an alias with the hand answer "Topaz": same thing, skipped
+  ['Topaz gem', 0, 80, ['tpz']], // shares an alias with the hand answer "Topaz": same thing, its name joins Topaz
   ['Middling', 0, 30, ['famous extra']], // alias clashes with a better-known entry: alias dropped
   ['Obscure', 0, 3, []],
 ] }]])
@@ -20,7 +20,7 @@ it('adds catalog names under the hand list, more obscure the less known they are
   expect(say('Middling')).toMatchObject({ pick: { obscurity: 51 } })
   expect(say('Obscure')).toMatchObject({ pick: { obscurity: 84 } })
   expect(say('tpz')).toMatchObject({ pick: { name: 'Topaz', obscurity: 92 } }) // the hand answer wins
-  expect(say('Topaz gem')).toMatchObject({ result: 'not-found' })
+  expect(say('Topaz gem')).toMatchObject({ pick: { name: 'Topaz', obscurity: 92 } })
 })
 
 it('matches typos only on well-known catalog names', () => {
