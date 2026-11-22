@@ -80,3 +80,25 @@ obscurity 0–100 (how few people would think of it). Tiers: Highway 0–24, Mai
 Side Street 50–74, Backroad 75–89, Dirt Track 90–100. A round needs at least 40 answers across at
 least 4 tiers, including one Dirt Track answer. Typos are forgiven on canonical names only
 (never aliases), and ambiguous typos are rejected.
+
+#### Big answer lists from Wikidata
+
+Open-ended prompts accept far more than a hand list can hold. Add `"catalog": "<id>"` to a round
+and every name in `content/catalogs/<id>.json` is an answer too: dog breeds (~700), fruits,
+Greek gods (~530), instruments (~1,000), sports, cheeses, birds (~5,200 species), gemstones,
+languages (~1,300), dinosaurs (~1,600 genera, birds left out), vegetables and board games.
+
+- Hand-written answers win: a catalog name sharing a name or alias with one is skipped.
+- Obscurity comes from fame, the number of Wikipedias with an article:
+  `100 - 33 × log10(fame)`, never below 30. A name the hand list missed is at least Main Road.
+- Typos only match catalog names with 20 or more Wikipedias.
+
+Rebuild the lists (a few minutes; the script retries when Wikidata is slow):
+
+```bash
+NODE_USE_ENV_PROXY=1 node scripts/catalogs.ts             # all
+NODE_USE_ENV_PROXY=1 node scripts/catalogs.ts birds       # one
+```
+
+`NODE_USE_ENV_PROXY=1` is only needed behind an HTTP proxy. Small closed sets (countries,
+elements, capitals, constellations) are already complete by hand.
