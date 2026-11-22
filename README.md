@@ -102,3 +102,6 @@ NODE_USE_ENV_PROXY=1 node scripts/catalogs.ts birds       # one
 
 `NODE_USE_ENV_PROXY=1` is only needed behind an HTTP proxy. Small closed sets (countries,
 elements, capitals, constellations) are already complete by hand.
+
+Names Wikidata misses go in `content/sources/<catalog>.txt`, one `Name|alias|alias` per line
+(e.g. ice apple in `fruits.txt`); their fame is looked up on Wikidata by name.
