@@ -2,7 +2,7 @@
 //   NODE_USE_ENV_PROXY=1 node scripts/catalogs.ts [id ...]
 // Each entry is [name, value, fame, aliases]. Fame is how many Wikipedias have an article on it,
 // which the game turns into obscurity (famous answers are common picks).
-import { writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 interface Spec {
@@ -38,7 +38,8 @@ const names = (id: string, where: string, min: number, source: string, extra: Pa
 
 export const SPECS: Spec[] = [
   names('dog-breeds', '?item wdt:P31 wd:Q39367 .', 3, 'Wikidata dog breeds (Q39367)'),
-  names('fruits', '?item wdt:P279+ wd:Q3314483 .', 5, 'Wikidata kinds of fruit (Q3314483)'),
+  // Kinds of fruit, plus the plants that are the source of one (many fruits only exist as the plant).
+  names('fruits', '{ ?item wdt:P279+ wd:Q3314483 } UNION { ?item wdt:P1672 ?f . ?f wdt:P279* wd:Q3314483 }', 3, 'Wikidata kinds of fruit (Q3314483) and fruit plants'),
   names('greek-gods', '?item wdt:P31/wdt:P279* wd:Q22989102 .', 4, 'Wikidata Greek deities (Q22989102)'),
   names('instruments', '?item wdt:P279+ wd:Q34379 .', 8, 'Wikidata musical instruments (Q34379)'),
   names('sports', '?item wdt:P31 wd:Q31629 .', 6, 'Wikidata types of sport (Q31629)'),
@@ -49,10 +50,31 @@ export const SPECS: Spec[] = [
   // Birds are dinosaurs too, but nobody means a sparrow: leave the bird class out.
   names('dinosaurs', '?item wdt:P105 wd:Q34740 ; wdt:P171+ wd:Q430 .', 4,
     'Wikidata non-avian dinosaur genera (Q430)', { keepLatin: true, minus: '?item wdt:P105 wd:Q34740 ; wdt:P171+ wd:Q5113 .' }),
-  names('vegetables', '?item wdt:P279+ wd:Q11004 .', 5, 'Wikidata kinds of vegetable (Q11004)'),
+  names('vegetables', '{ ?item wdt:P279+ wd:Q11004 } UNION { ?item wdt:P1672 ?f . ?f wdt:P279* wd:Q11004 }', 3, 'Wikidata kinds of vegetable (Q11004) and vegetable plants'),
   names('board-games', '?item wdt:P31 wd:Q131436 .', 4, 'Wikidata board games (Q131436)'),
   names('birds', '?item wdt:P105 wd:Q7432 ; wikibase:sitelinks ?l0 . FILTER(?l0 >= 25) ?item wdt:P171+ wd:Q5113 .', 25, 'Wikidata bird species (Q5113)'),
 ]
+
+const source = (file: string) => fileURLToPath(new URL(`../content/sources/${file}`, import.meta.url))
+
+/** Names Wikidata misses, from content/sources/<id>.txt: one "Name|alias|alias" per line. */
+const extras = (id: string) =>
+  existsSync(source(`${id}.txt`))
+    ? readFileSync(source(`${id}.txt`), 'utf8').split('\n').filter((l) => l.trim() && !l.startsWith('#')).map((l) => l.split('|').map((x) => x.trim()))
+    : []
+
+/** Fame (Wikipedias with an article) of things known only by name: the best known item with that label. */
+async function fameOf(names: string[]) {
+  const out = new Map<string, number>()
+  for (let i = 0; i < names.length; i += 80) {
+    const values = names.slice(i, i + 80).flatMap((n) => [n, n.toLowerCase()]).map((n) => `${JSON.stringify(n)}@en`).join(' ')
+    for (const r of await sparql(`SELECT ?n (MAX(?links) AS ?fame) WHERE { VALUES ?n { ${values} } ?item rdfs:label|wdt:P1843 ?n ; wikibase:sitelinks ?links . } GROUP BY ?n`)) {
+      const k = r.n.value.toLowerCase()
+      out.set(k, Math.max(out.get(k) ?? 0, Number(r.fame.value)))
+    }
+  }
+  return out
+}
 
 /** Wikidata rate-limits (429) and times out (5xx) under load: retry with backoff. */
 async function sparql(query: string, attempt = 1): Promise<Record<string, { value: string }>[]> {
@@ -110,6 +132,10 @@ async function build(spec: Spec) {
     // Same name twice (e.g. two mountains called Dom): keep the better known one.
     if (!prev || prev[2] < fame) byName.set(name.toLowerCase(), [name, round(value), fame, aliases.slice(0, 8)])
   }
+  // Extras: fame from Wikidata by name, 1 if it has no article anywhere.
+  const more = extras(spec.id).map((n) => n.filter(Boolean))
+  const fame = more.length ? await fameOf(more.map((n) => n[0])) : new Map()
+  for (const [name, ...aliases] of more) if (!byName.has(name.toLowerCase())) byName.set(name.toLowerCase(), [name, 0, fame.get(name.toLowerCase()) ?? 1, aliases])
   const entries = [...byName.values()].sort((a, b) => b[2] - a[2])
   const file = fileURLToPath(new URL(`../content/catalogs/${spec.id}.json`, import.meta.url))
   const body = entries.map((e) => JSON.stringify(e)).join(',\n')
